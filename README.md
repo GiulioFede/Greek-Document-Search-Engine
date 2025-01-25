@@ -70,21 +70,20 @@ where each json has this format (an example in provided):
 ```
 ## Config file
 Before starting the creation of the index, database and launching the UI, it is necessary to configure some parameters. Go to `config/index_config.py` and edit the following fields:
-1. run.device: the gpu device on which to run the NLP models.
-   
-3. data.json_dataset_path: the path to the folder containing the database seen in the previous section.
-4. data.min_words_in_phrase: minimum number of words that a sentence must consist of to be considered as such.
-5. data.len_embedding: len of the embedding used by the model.
 
-6. model.tokenizer: the hugging face path towards the tokenizer.
-7. model.model: the hugging face path towards the model.
-8. model.top_k: when two sentences are separated in the json file, to decide whether to merge them or not the NLP model will predict k sentences. If one of these k is equal to the union of the two sentences then they will merge. The higher k is the better the index will be, but the slower the entire creation will be.
-
-9. index.index_path: the folder where to save/use index.
-10. index.index_name: the name of the index to save/use.
-
-11. db.db_path: the folder where to save/use the db.
-12. db.db_name: the name of the db to save/use.
+| **Parameter**                     | **Description**                                                                                                                                 |
+|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `run.device`                      | The GPU device on which to run the NLP models.                                                                                               |
+| `data.json_dataset_path`          | The path to the folder containing the database.                                                                                              |
+| `data.min_words_in_phrase`        | The minimum number of words a sentence must contain to be considered as such.                                                               |
+| `data.len_embedding`              | The length of the embedding used by the model.                                                                                              |
+| `model.tokenizer`                 | The Hugging Face path to the tokenizer.                                                                                                      |
+| `model.model`                     | The Hugging Face path to the model.                                                                                                           |
+| `model.top_k`                     | The number of sentences the model predicts to decide whether to merge two sentences. If one of these is the union of the two sentences, they will merge. The higher `k` is, the better the index will be, but the slower the creation process will be. |
+| `index.index_path`                | The folder where to save or load the index.                                                                                                  |
+| `index.index_name`                | The name of the index to save or load.                                                                                                        |
+| `db.db_path`                      | The folder where to save or load the database.                                                                                               |
+| `db.db_name`                      | The name of the database to save or load.                                                                                                     |
 
 
 
