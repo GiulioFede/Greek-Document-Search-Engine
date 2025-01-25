@@ -32,13 +32,13 @@ Users can input a query in Greek, and the system will return the most relevant s
 
 ### Dataset
 The dataset, which cannot be shared, must be structured as follows:
-1. db_folder
-   - document_1
+- db_folder
+   1. document_1
      - json_file_1
      - json_file_2
      - ....
 
-   - document_2
+   2. document_2
      - json_file_1
      - json_file_2
      - ....
