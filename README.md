@@ -31,3 +31,10 @@ Users can input a query in Greek, and the system will return the most relevant s
 - Absl
 
 
+### Running the Project
+To create a FAISS index and a SQL database, run the following script:
+```
+nohup python -u create_index.py --config "/home/giuliofederico/Itserr/config/index_config.py" > log.txt 2>&1 &
+``
+
+
