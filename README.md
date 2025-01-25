@@ -42,7 +42,32 @@ The dataset, which cannot be shared, must be structured as follows:
       - json_file_1
       - json_file_2
       - ....
-       
+where each json has this format (an example in provided):
+```
+{
+    "author_id": "1207",
+    "id": "001",
+    "name": "Fragmenta Aratea",
+    "content": [
+        {
+            "citation": "1.1",
+            "text": " Hipparch. I p. 1013A (178P. 24M.) ὅτι μὲν οὖν Εὐδόξωι "
+        },
+        {
+            "text": "ἐπακολουθήσας ὁ Ἄρατος συντέταχε τὰ Φαινόμενα, ἱκανῶς οἶ"
+        },
+        {
+            "text": "μαι δεικνύναι διὰ τῶν προειρημένων, ἐν οἷς δὲ διαπίπτουσιν "
+        },
+        {
+            "text": "οὗτοί τε καὶ οἱ συνεπιγραφόμενοι αὐτοῖς, ὧν ἐστι καὶ Α*ΤΤΑΛΟΣ, "
+        },
+        {
+            "citation": "1.5",
+            "text": "νῦν ὑποδείξομεν. ἐκθησόμεθα δὲ εὐθέως καὶ ἐν οἷς ἰδίαι ἕκαστος "
+        },
+      ...
+```
 ### Running the Project
 To create a FAISS index and a SQL database, run the following script:
 ```
