@@ -90,7 +90,7 @@ Before starting the creation of the index, database and launching the UI, it is 
 ## Running the Project
 To create a FAISS index and a SQL database, run the following script:
 ```
-nohup python -u create_index.py --config "/home/giuliofederico/Itserr/config/index_config.py" > log.txt 2>&1 &
+nohup python -u create_index.py --config "./config/index_config.py" > log.txt 2>&1 &
 ```
-
+where the config file is the one seen in the previous section.
 
