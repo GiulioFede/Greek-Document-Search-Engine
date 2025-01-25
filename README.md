@@ -39,9 +39,9 @@ The dataset, which cannot be shared, must be structured as follows:
       - ....
 
    2. document_2
-     - json_file_1
-     - json_file_2
-     - ....
+      - json_file_1
+      - json_file_2
+      - ....
        
 ### Running the Project
 To create a FAISS index and a SQL database, run the following script:
