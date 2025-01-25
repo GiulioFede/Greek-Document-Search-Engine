@@ -1,7 +1,7 @@
 # Greek Document Search Engine
 
 <p float="center">
-  <img src="chrome-capture-2025-1-25" />
+  <img src="chrome-capture-2025-1-25.gif" />
 </p>
 
 ## Overview
