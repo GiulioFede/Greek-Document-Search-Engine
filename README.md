@@ -68,6 +68,11 @@ where each json has this format (an example in provided):
         },
       ...
 ```
+### Config file
+Before starting the creation of the index, database and launching the UI, it is necessary to configure some parameters. Go to
+
+
+
 ### Running the Project
 To create a FAISS index and a SQL database, run the following script:
 ```
