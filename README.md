@@ -94,3 +94,9 @@ nohup python -u create_index.py --config "./config/index_config.py" > log.txt 2>
 ```
 where the config file is the one seen in the previous section.
 
+To launch the UI run the following script:
+```
+nohup python -u ui_launcher.py --config "./config/index_config.py" > log.txt 2>&1 &
+```
+where the config file is the one seen in the previous section.
+
