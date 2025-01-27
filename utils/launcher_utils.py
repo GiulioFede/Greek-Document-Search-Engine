@@ -40,6 +40,7 @@ def get_best_results(index, H, cursor, query, tokenizer, model, k=1, device=None
             json_result[r]['name'] = row[3]
             json_result[r]['sentence'] = row[4]
             json_result[r]['citations'] = row[5]
+            json_result[r]['book_name'] = row[6]
         r+=1
     
     return json_result

@@ -39,8 +39,17 @@ def main(argv):
     mask_filler = pipeline("fill-mask", model = H.model.model, tokenizer = H.model.tokenizer, top_k = H.model.top_k, device=device)
 
     #create index
-    index = faiss.IndexFlatL2(H.data.len_embedding)
     path_to_save_index = os.path.join(H.index.index_path,f"{H.index.index_name}.index")
+    # Controlla se il file dell'indice esiste già
+    if os.path.exists(path_to_save_index):
+        # Carica l'indice esistente
+        index = faiss.read_index(path_to_save_index)
+        print("Index successfully loaded!")
+    else:
+        # Se non esiste, crea un nuovo indice
+        index = faiss.IndexFlatL2(H.data.len_embedding)
+        print("New index created.")
+    
 
     #create or open db
     path_to_save_db = os.path.join(H.db.db_path,f"{H.db.db_name}.db")
@@ -51,7 +60,7 @@ def main(argv):
     assert m == 0, "ERROR: cannot create or open database."
 
     cursor = connection.cursor()
-    cursor.execute(f"CREATE TABLE IF NOT EXISTS {H.db.db_name} (row_id INTEGER PRIMARY KEY AUTOINCREMENT, author_id TEXT, id TEXT, name TEXT, sentence TEXT, citations TEXT)")
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS {H.db.db_name} (row_id INTEGER PRIMARY KEY AUTOINCREMENT, author_id TEXT, id TEXT, name TEXT, sentence TEXT, citations TEXT, book_name TEXT)")
 
     num_current_folder = 1   
     for folder_name in os.listdir(json_dataset_path):
@@ -97,9 +106,9 @@ def main(argv):
                         #save data to db (NB: if FAISS USE INDEX K FOR A SENTENCE, SQLITE USE INDEX (K+1))
                         for idx, sentence in enumerate(sentences):
                                 cursor.execute(f"""
-                                                    INSERT INTO {H.db.db_name} (author_id, id, name, sentence, citations) 
-                                                    VALUES (?, ?, ?, ?, ?)
-                                                """, (data['author_id'], data['id'], data['name'], sentence, str(citations[idx])))
+                                                    INSERT INTO {H.db.db_name} (author_id, id, name, sentence, citations, book_name) 
+                                                    VALUES (?, ?, ?, ?, ?, ?)
+                                                """, (data['author_id'], data['id'], data['name'], sentence, str(citations[idx]), folder_name))
                         connection.commit()
                         #save index
                         faiss.write_index(index, path_to_save_index)

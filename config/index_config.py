@@ -65,6 +65,7 @@ def get_config():
 
 
 
+    #not important. Just if you want to execute test_index.py
     config.retrieval = retrieval = ConfigDict()
     retrieval.num_matches = 5
 

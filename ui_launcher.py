@@ -23,6 +23,23 @@ flags.mark_flags_as_required(["config"])
 import unicodedata
 import re
 
+from bs4 import BeautifulSoup
+
+def highlight_words_in_html(html, parole, stile):
+    soup = BeautifulSoup(html, "html.parser")  
+    
+    for parola in parole:
+        # Trova e sostituisci solo il testo (non i tag)
+        for elem in soup.find_all(string=re.compile(r'\b' + re.escape(parola) + r'\b')):
+            nuovo_contenuto = re.sub(
+                r'\b' + re.escape(parola) + r'\b', 
+                f'<span style="{stile}">{parola}</span>', 
+                elem
+            )
+            elem.replace_with(BeautifulSoup(nuovo_contenuto, "html.parser"))
+    
+    return str(soup)
+
 def normalize_text(text):
     # Rimuovere caratteri invisibili come spazi non separabili
     text = text.replace('\xa0', ' ')  # Sostituire \xa0 con uno spazio
@@ -72,7 +89,7 @@ def main(argv):
         results = []
         for i in range(number):
             result = {
-                "Book": f"Book {i+1}",
+                "Book": best_results[i]['book_name'],
                 "author_id": best_results[i]['author_id'],
                 "id": best_results[i]['id'],
                 "name": best_results[i]['name'],
@@ -81,60 +98,60 @@ def main(argv):
             }
             results.append(result)
         
+        
         # Creare una stringa HTML per visualizzare tutti i risultati
         results_html = ""
         for result in results:
             match_text = result['match']
+           
             # Normalizzare match_text rimuovendo i caratteri speciali
             match_text = normalize_text(match_text)
 
             # Convertire la stringa 'citations' in una lista di dizionari
             if result['citations']:
                 try:
-                    citations = ast.literal_eval(result['citations']) 
-                    print(f"\nCITAZIONI: {citations}")
-                    # Ciclo sulle citazioni
-                    for citation in citations:
-                        print(f"\n   citazione:  {citation}")
+                    citations = ast.literal_eval(result['citations'])
+                    placeholders = {}  # Dizionario per tracciare i segnaposto
+                    placeholder_template = "__CITATION_PLACEHOLDER_{}__"
+
+                    for i, citation in enumerate(citations):
                         citation_text = citation.get('text')
                         if citation_text:
                             citation_id = citation['citation']
-                            # Normalizzare anche citation_text
                             citation_text = normalize_text(citation_text)
-                            # Se la citazione è contenuta nel match, evidenziarla
                             if citation_text in match_text:
-                                print(f"\n      citazione {citation_text} contenuta in:  {match_text}")
-                                match_text = match_text.replace(
-                                    citation_text,
-                                    f'<span class="citation" data-citation="{citation_id}" title="{citation_text}">{citation_text}</span>'
-                                )
-                            else:
-                                print(f"\n      citazione {citation_text} non contenuta in:  {match_text}")
+                                placeholder = placeholder_template.format(i)
+                                placeholders[placeholder] = f'<span class="citation" data-citation="{citation_id}" title="{citation_text}">{citation_text}</span>'
+                                match_text = match_text.replace(citation_text, placeholder)
+
+                    # Sostituisci i segnaposto con il codice HTML finale
+                    for placeholder, html in placeholders.items():
+                        match_text = match_text.replace(placeholder, html)
+
+
                                 
                 except json.JSONDecodeError:
                     print(f"Error decoding quotes: {result['citations']}")
             
-            words_text = re.findall(r'\b\w+\b', text.lower())  # Converting to lowercase per confronti insensibili al maiuscolo/minuscolo
+
+            #evidenzia nei risultati tutte le parole comuni con la query
+            words_text = re.findall(r'\b\w+\b', text)  # Converting to lowercase per confronti insensibili al maiuscolo/minuscolo
 
             #Controllare se ciascuna parola della query è presente nel test matchato
-            words_match_text = re.findall(r'\b\w+\b', match_text.lower())  
+            words_match_text = re.findall(r'\b\w+\b', match_text)  
 
             #Troviamo le parole che si trovano in entrambe le stringhe
             common_words = [word for word in words_text if word in words_match_text]
 
-            for word in common_words:
-                # Creiamo il pattern per trovare ogni occorrenza della parola nel match text (case insensitive)
-                pattern = r'\b' + re.escape(word) + r'\b'
-                
-                # Sostituire la parola con il tag HTML
-                match_text = re.sub(pattern, r'<span style="font-weight: bold; color: blue;">\g<0></span>', match_text, flags=re.IGNORECASE)
+            stile_css = "font-weight: bold; color: blue;"
 
+            match_text = highlight_words_in_html(match_text, common_words, stile_css)
 
 
             # Creare una box per ogni risultato
             results_html += f"""
-            <div style="border: 2px solid #ccc; padding: 10px; margin-bottom: 10px; background-color: white;">
-                <strong>Libro:</strong> {result['Book']}<br>
+            <div style="border: 2px solid #ccc; padding: 10px; margin-bottom: 10px; color: black">
+                <strong>Book:</strong> {result['Book']}<br>
                 <strong>author_id:</strong> {result['author_id']}<br>
                 <strong>id:</strong> {result['id']}<br>
                 <strong>name:</strong> {result['name']}<br>
