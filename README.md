@@ -46,6 +46,7 @@ The dataset, which cannot be shared, must be structured as follows:
       - json_file_1
       - json_file_2
       - ....
+
 where each json has this format (an example in provided):
 ```
 {
