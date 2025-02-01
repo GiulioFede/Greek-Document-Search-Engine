@@ -25,6 +25,9 @@ import re
 
 from bs4 import BeautifulSoup
 
+SHOW_CIT = False
+SHOW_MATCH = False
+
 def highlight_words_in_html(html, parole, stile):
     soup = BeautifulSoup(html, "html.parser")  
     
@@ -104,48 +107,49 @@ def main(argv):
         for result in results:
             match_text = result['match']
            
-            # Normalizzare match_text rimuovendo i caratteri speciali
-            match_text = normalize_text(match_text)
+            if SHOW_CIT:
+                # Normalizzare match_text rimuovendo i caratteri speciali
+                match_text = normalize_text(match_text)
 
-            # Convertire la stringa 'citations' in una lista di dizionari
-            if result['citations']:
-                try:
-                    citations = ast.literal_eval(result['citations'])
-                    placeholders = {}  # Dizionario per tracciare i segnaposto
-                    placeholder_template = "__CITATION_PLACEHOLDER_{}__"
+                # Convertire la stringa 'citations' in una lista di dizionari
+                if result['citations']:
+                    try:
+                        citations = ast.literal_eval(result['citations'])
+                        placeholders = {}  # Dizionario per tracciare i segnaposto
+                        placeholder_template = "__CITATION_PLACEHOLDER_{}__"
 
-                    for i, citation in enumerate(citations):
-                        citation_text = citation.get('text')
-                        if citation_text:
-                            citation_id = citation['citation']
-                            citation_text = normalize_text(citation_text)
-                            if citation_text in match_text:
-                                placeholder = placeholder_template.format(i)
-                                placeholders[placeholder] = f'<span class="citation" data-citation="{citation_id}" title="{citation_text}">{citation_text}</span>'
-                                match_text = match_text.replace(citation_text, placeholder)
+                        for i, citation in enumerate(citations):
+                            citation_text = citation.get('text')
+                            if citation_text:
+                                citation_id = citation['citation']
+                                citation_text = normalize_text(citation_text)
+                                if citation_text in match_text:
+                                    placeholder = placeholder_template.format(i)
+                                    placeholders[placeholder] = f'<span class="citation" data-citation="{citation_id}" title="{citation_text}">{citation_text}</span>'
+                                    match_text = match_text.replace(citation_text, placeholder)
 
-                    # Sostituisci i segnaposto con il codice HTML finale
-                    for placeholder, html in placeholders.items():
-                        match_text = match_text.replace(placeholder, html)
+                        # Sostituisci i segnaposto con il codice HTML finale
+                        for placeholder, html in placeholders.items():
+                            match_text = match_text.replace(placeholder, html)
 
 
-                                
-                except json.JSONDecodeError:
-                    print(f"Error decoding quotes: {result['citations']}")
+                                    
+                    except json.JSONDecodeError:
+                        print(f"Error decoding quotes: {result['citations']}")
             
+            if SHOW_MATCH:
+                #evidenzia nei risultati tutte le parole comuni con la query
+                words_text = re.findall(r'\b\w+\b', text)  # Converting to lowercase per confronti insensibili al maiuscolo/minuscolo
 
-            #evidenzia nei risultati tutte le parole comuni con la query
-            words_text = re.findall(r'\b\w+\b', text)  # Converting to lowercase per confronti insensibili al maiuscolo/minuscolo
+                #Controllare se ciascuna parola della query è presente nel test matchato
+                words_match_text = re.findall(r'\b\w+\b', match_text)  
 
-            #Controllare se ciascuna parola della query è presente nel test matchato
-            words_match_text = re.findall(r'\b\w+\b', match_text)  
+                #Troviamo le parole che si trovano in entrambe le stringhe
+                common_words = [word for word in words_text if word in words_match_text]
 
-            #Troviamo le parole che si trovano in entrambe le stringhe
-            common_words = [word for word in words_text if word in words_match_text]
+                stile_css = "font-weight: bold; color: blue;"
 
-            stile_css = "font-weight: bold; color: blue;"
-
-            match_text = highlight_words_in_html(match_text, common_words, stile_css)
+                match_text = highlight_words_in_html(match_text, common_words, stile_css)
 
 
             # Creare una box per ogni risultato
