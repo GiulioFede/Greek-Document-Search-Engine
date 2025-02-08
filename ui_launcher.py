@@ -58,6 +58,9 @@ def main(argv):
 
     H = FLAGS.config
 
+    #load list of works
+    list_of_works = np.load(H.data.name_of_the_works_path)
+
     #TODO in the future change DB and index based on dropdown option
     device = H.run.device if torch.cuda.is_available() else -1
 
@@ -79,7 +82,11 @@ def main(argv):
     cursor = connection.cursor()
 
 
-    def process_inputs(text, number, option):
+    def process_inputs(text, number, max_documents, option, author_id, works_selected, additional_text, additional_text_slider_value):
+
+
+        max_documents = max(number, max_documents)
+        #print(f"SELEZIONE: text: {text},  number: {number},  option: {option},  author_id: {author_id},  works_selected: {works_selected},  additional_text: {additional_text},  slider_value: {additional_text_slider_value}")
 
         if text=="":
             return f"""
@@ -87,10 +94,10 @@ def main(argv):
                 <p>Insert a valid query.</p>
             </div> """
         
-        best_results = get_best_results(index, H, cursor, text, tokenizer, model, number, device )
+        best_results = get_best_results(index, H, cursor, text, tokenizer, model, number, max_documents, author_id, works_selected, additional_text, additional_text_slider_value, device )
         #print(best_results)
         results = []
-        for i in range(number):
+        for i in range(len(best_results)):
             result = {
                 "Book": best_results[i]['book_name'],
                 "author_id": best_results[i]['author_id'],
@@ -197,22 +204,30 @@ def main(argv):
         return results_html
 
 
+    # Funzione di filtro per le opere
+    def filter_works(query):
+        query = query.lower()
+        return [opera for opera in list_of_works if query in opera.lower()]
+
+    # Layout UI con un campo di ricerca per le opere
     demo = gr.Interface(
-    fn=process_inputs,
-    inputs=[
-        gr.Textbox(lines=5, 
-                    placeholder="Servius ad Virgil. Aen. III, 334: [Chaonios cognomine Campos] Epirum campos non habere omnibus notum est.",
-                    label="Enter query"),
-        gr.Slider(1, 10, step=1, label="Choose how many results to return"),
-        gr.Dropdown(["DB_Greek"], label="Select the database where to search"),
-    ],
-    outputs=gr.HTML(),
-    title="Greek Document Search Engine",
-    description="Enter a text query and the number of results you want to get. The system will search the documents for the best results and automatically sort them.",
+        fn=process_inputs,
+        inputs=[
+            gr.Textbox(lines=5, 
+                        placeholder="Servius ad Virgil. Aen. III, 334: [Chaonios cognomine Campos] Epirum campos non habere omnibus notum est.",
+                        label="Enter query"),
+            gr.Slider(1, 10, step=1, label="Choose how many results to return"),
+            gr.Slider(1, 1000, step=1, label="How many results to search before returning the best choices (above), important if author/work is specified."),
+            gr.Dropdown(["DB_Greek"], label="Select the database where to search"),
+            gr.Textbox(label="Author ID", placeholder="Enter the author ID (numeric)"),
+            gr.Dropdown(choices=list(np.insert(list_of_works, 0, 'All')), label="Select Works", multiselect=False),  # Lista di opere
+            gr.Textbox(label="Additional Phrase", placeholder="Enter an additional phrase"),
+            gr.Slider(0, 1, step=0.01, label="How much weight should be given to the additional sentence compared to the main one.")
+        ],
+        outputs=gr.HTML(),
+        title="Greek Document Search Engine",
+        description="Enter a text query and the number of results you want to get. The system will search the documents for the best results and automatically sort them.",
     )
-
-
-
 
     demo.launch(server_name="0.0.0.0", share=True)
 

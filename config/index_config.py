@@ -44,6 +44,9 @@ def get_config():
     #lenght of the embedding of each sentence. Will be used to inizialize the index
     data.len_embedding = 768
 
+    #dove si trova la lista contenente le opere TLG (create prima con lo script save_name_of_the_works)
+    data.name_of_the_works_path = "/home/giuliofederico/Itserr/name_of_the_tlg_works.npy"
+
 
     config.model = model = ConfigDict()
 
